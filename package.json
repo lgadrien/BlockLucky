@@ -1,0 +1,31 @@
+{
+  "name": "blocklucky",
+  "version": "1.0.0",
+  "description": "Créer un smart contract sur la blockchain Ethereum pour une ville.",
+  "main": "index.js",
+  "scripts": {
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "deploy": "hardhat run scripts/deploy.js",
+    "deploy:localhost": "hardhat run scripts/deploy.js --network localhost",
+    "node": "hardhat node",
+    "clean": "hardhat clean"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lgadrien/BlockLucky.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/lgadrien/BlockLucky/issues"
+  },
+  "homepage": "https://github.com/lgadrien/BlockLucky#readme",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@nomicfoundation/solidity-analyzer-win32-x64-msvc": "^0.1.2",
+    "hardhat": "^2.27.0"
+  }
+}

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 import MetaMaskLogin from '../MetaMaskLogin'
+import { useWeb3 } from '../../context/Web3Context'
 
 function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const { isConnected } = useWeb3()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,6 +22,11 @@ function Header() {
     { name: 'À propos', href: '#about' },
     { name: 'Contact', href: '#footer' },
   ]
+
+  // Filtrer les liens selon l'état de connexion
+  const displayedLinks = isConnected 
+    ? navLinks.filter(link => link.name === 'Accueil') 
+    : navLinks
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
@@ -42,7 +49,7 @@ function Header() {
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
+            {displayedLinks.map((link) => (
               <a
                 key={link.name}
                 href={link.href}
@@ -70,7 +77,7 @@ function Header() {
         {isMobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-100">
             <nav className="flex flex-col gap-4">
-              {navLinks.map((link) => (
+              {displayedLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}

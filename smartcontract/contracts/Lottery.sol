@@ -31,8 +31,11 @@ contract Lottery {
 
     // Fonction pour acheter un ticket de loterie
     function buyTicket() public payable {
+        // Vérifier que le montant envoyé est égal au prix du ticket
         require(msg.value == ticketPrice, "Le montant envoye doit etre egal au prix du ticket.");
+        // Incrémenter le nombre de participants et le total des mises
         participantsCount += 1;
+        // Ajouter le montant de la mise au total des mises
         totalBets += msg.value;
     }
 }

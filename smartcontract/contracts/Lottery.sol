@@ -2,5 +2,31 @@
 pragma solidity ^0.8.0;
 
 contract Lottery {
-    // Ton code ici
+    
+    // Propriétaire du contrat
+    address private owner;
+    // Nombre de participants
+    uint public participantsCount;
+    // Nombre minimum de participants requis pour tirer un gagnant
+    uint public minParticipants;
+    // Montant total des mises
+    uint public totalBets;
+    // Durée restante avant la fin de la loterie
+    uint public timeLeft;
+    // Prix d'un ticket
+    uint public ticketPrice;
+    // Adresse du gagnant
+    address public winner;
+
+    constructor( ) {
+        
+        owner = msg.sender;
+        participantsCount = 0;
+        minParticipants = 3;
+        totalBets = 0;
+        timeLeft = 0;
+        ticketPrice = 0.0016 ether;
+        winner = address(0);
+    }
+
 }

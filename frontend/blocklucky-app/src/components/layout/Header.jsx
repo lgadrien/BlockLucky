@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Menu, X, Home, User, Ticket } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import MetaMaskLogin from '../MetaMaskLogin'
+import NotificationBell from '../NotificationBell'
 import { useWeb3 } from '../../context/Web3Context'
 
 function Header() {
@@ -100,6 +101,10 @@ function Header() {
                 ))}
               </>
             )}
+            
+            {/* Notification Bell - Only when connected */}
+            {isConnected && <NotificationBell />}
+            
             <MetaMaskLogin />
           </nav>
 

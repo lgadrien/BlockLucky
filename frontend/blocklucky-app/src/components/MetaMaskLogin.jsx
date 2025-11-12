@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { LogOut, Wallet, X, ExternalLink, Download } from 'lucide-react'
 import { useWeb3 } from '../context/Web3Context'
 
@@ -16,6 +16,40 @@ function MetaMaskLogin() {
 
   const [showError, setShowError] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
+
+  // Bloquer le scroll quand le modal est ouvert
+  useEffect(() => {
+    if (showLoginModal) {
+      // Sauvegarder la position de scroll actuelle
+      const scrollY = window.scrollY
+      
+      // Bloquer le scroll
+      document.body.style.position = 'fixed'
+      document.body.style.top = `-${scrollY}px`
+      document.body.style.width = '100%'
+      document.body.style.overflow = 'hidden'
+    } else {
+      // Restaurer le scroll
+      const scrollY = document.body.style.top
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+      document.body.style.overflow = ''
+      
+      // Restaurer la position de scroll
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1)
+      }
+    }
+
+    // Cleanup
+    return () => {
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+      document.body.style.overflow = ''
+    }
+  }, [showLoginModal])
 
   const handleConnect = async () => {
     setShowError(false)
@@ -74,8 +108,19 @@ function MetaMaskLogin() {
 
       {/* Modal de Login */}
       {showLoginModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 animate-in fade-in zoom-in">
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-hidden"
+          onClick={(e) => {
+            // Fermer si on clique sur l'overlay
+            if (e.target === e.currentTarget) {
+              setShowLoginModal(false)
+            }
+          }}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 animate-in fade-in zoom-in max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-anthracite-900">Connexion Web3</h2>

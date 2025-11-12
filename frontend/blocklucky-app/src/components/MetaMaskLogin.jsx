@@ -1,8 +1,6 @@
 import { useState } from 'react'
-import { LogOut, Wallet, X, ExternalLink, Download, User, Ticket } from 'lucide-react'
+import { LogOut, Wallet, X, ExternalLink, Download } from 'lucide-react'
 import { useWeb3 } from '../context/Web3Context'
-import Profile from './Profile'
-import Lottery from './Lottery'
 
 function MetaMaskLogin() {
   const {
@@ -18,8 +16,6 @@ function MetaMaskLogin() {
 
   const [showError, setShowError] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
-  const [showProfileModal, setShowProfileModal] = useState(false)
-  const [showLotteryModal, setShowLotteryModal] = useState(false)
 
   const handleConnect = async () => {
     setShowError(false)
@@ -50,26 +46,6 @@ function MetaMaskLogin() {
               {formatAddress(account)}
             </span>
           </div>
-          
-          {/* Bouton Profil */}
-          <button
-            onClick={() => setShowProfileModal(true)}
-            className="px-3 sm:px-4 py-2.5 bg-blockchain-50 hover:bg-blockchain-100 text-blockchain-600 font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2"
-            title="Profil"
-          >
-            <User className="w-4 h-4" />
-            <span className="hidden sm:inline">Profil</span>
-          </button>
-
-          {/* Bouton Lotterie */}
-          <button
-            onClick={() => setShowLotteryModal(true)}
-            className="px-3 sm:px-4 py-2.5 bg-chance-50 hover:bg-chance-100 text-chance-600 font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2"
-            title="Lotterie"
-          >
-            <Ticket className="w-4 h-4" />
-            <span className="hidden sm:inline">Lotterie</span>
-          </button>
           
           <button
             onClick={handleDisconnect}
@@ -194,12 +170,6 @@ function MetaMaskLogin() {
           {error}
         </div>
       )}
-
-      {/* Profile Modal */}
-      <Profile isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} />
-
-      {/* Lottery Modal */}
-      <Lottery isOpen={showLotteryModal} onClose={() => setShowLotteryModal(false)} />
     </>
   )
 }

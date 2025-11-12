@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, Home, User, Ticket } from 'lucide-react'
 import MetaMaskLogin from '../MetaMaskLogin'
+import Profile from '../Profile'
+import Lottery from '../Lottery'
 import { useWeb3 } from '../../context/Web3Context'
 
 function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const [showLotteryModal, setShowLotteryModal] = useState(false)
   const { isConnected } = useWeb3()
 
   useEffect(() => {
@@ -49,17 +53,56 @@ function Header() {
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            {displayedLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 relative group"
-                style={{ fontFamily: 'Inter, sans-serif' }}
-              >
-                {link.name}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blockchain-500 group-hover:w-full transition-all duration-300"></span>
-              </a>
-            ))}
+            {isConnected ? (
+              <>
+                {/* Bouton Home */}
+                <a
+                  href="#hero"
+                  className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 relative group flex items-center gap-2"
+                  style={{ fontFamily: 'Inter, sans-serif' }}
+                >
+                  <Home className="w-4 h-4" />
+                  <span>Accueil</span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blockchain-500 group-hover:w-full transition-all duration-300"></span>
+                </a>
+
+                {/* Bouton Profil */}
+                <button
+                  onClick={() => setShowProfileModal(true)}
+                  className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 relative group flex items-center gap-2"
+                  style={{ fontFamily: 'Inter, sans-serif' }}
+                >
+                  <User className="w-4 h-4" />
+                  <span>Profil</span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blockchain-500 group-hover:w-full transition-all duration-300"></span>
+                </button>
+
+                {/* Bouton Lotterie */}
+                <button
+                  onClick={() => setShowLotteryModal(true)}
+                  className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 relative group flex items-center gap-2"
+                  style={{ fontFamily: 'Inter, sans-serif' }}
+                >
+                  <Ticket className="w-4 h-4" />
+                  <span>Lotterie</span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blockchain-500 group-hover:w-full transition-all duration-300"></span>
+                </button>
+              </>
+            ) : (
+              <>
+                {displayedLinks.map((link) => (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 relative group"
+                    style={{ fontFamily: 'Inter, sans-serif' }}
+                  >
+                    {link.name}
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blockchain-500 group-hover:w-full transition-all duration-300"></span>
+                  </a>
+                ))}
+              </>
+            )}
             <MetaMaskLogin />
           </nav>
 
@@ -77,17 +120,60 @@ function Header() {
         {isMobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-100">
             <nav className="flex flex-col gap-4">
-              {displayedLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 py-2"
-                  style={{ fontFamily: 'Inter, sans-serif' }}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {link.name}
-                </a>
-              ))}
+              {isConnected ? (
+                <>
+                  {/* Bouton Home Mobile */}
+                  <a
+                    href="#hero"
+                    className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 py-2 flex items-center gap-2"
+                    style={{ fontFamily: 'Inter, sans-serif' }}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Home className="w-4 h-4" />
+                    <span>Accueil</span>
+                  </a>
+
+                  {/* Bouton Profil Mobile */}
+                  <button
+                    onClick={() => {
+                      setShowProfileModal(true)
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 py-2 flex items-center gap-2 text-left"
+                    style={{ fontFamily: 'Inter, sans-serif' }}
+                  >
+                    <User className="w-4 h-4" />
+                    <span>Profil</span>
+                  </button>
+
+                  {/* Bouton Lotterie Mobile */}
+                  <button
+                    onClick={() => {
+                      setShowLotteryModal(true)
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 py-2 flex items-center gap-2 text-left"
+                    style={{ fontFamily: 'Inter, sans-serif' }}
+                  >
+                    <Ticket className="w-4 h-4" />
+                    <span>Lotterie</span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  {displayedLinks.map((link) => (
+                    <a
+                      key={link.name}
+                      href={link.href}
+                      className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 py-2"
+                      style={{ fontFamily: 'Inter, sans-serif' }}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {link.name}
+                    </a>
+                  ))}
+                </>
+              )}
               <div className="mt-2">
                 <MetaMaskLogin />
               </div>
@@ -95,6 +181,12 @@ function Header() {
           </div>
         )}
       </div>
+
+      {/* Profile Modal */}
+      <Profile isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} />
+
+      {/* Lottery Modal */}
+      <Lottery isOpen={showLotteryModal} onClose={() => setShowLotteryModal(false)} />
     </header>
   )
 }

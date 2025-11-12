@@ -43,6 +43,8 @@ event TicketPurchased(address indexed participant, uint amount);
 
     // Fonction pour acheter un ticket de loterie
     function buyTicket() public payable {
+        // Vérifier que la loterie est ouverte
+        require(lotteryState == LotteryState.OPEN, "La loterie est fermee.");
         // Vérifier que le montant envoyé est égal au prix du ticket
         require(msg.value == ticketPrice, "Le montant envoye doit etre egal au prix du ticket.");
         // Incrémenter le nombre de participants et le total des mises

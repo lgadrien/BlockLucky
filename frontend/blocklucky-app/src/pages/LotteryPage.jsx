@@ -1,28 +1,43 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Ticket, Clock, Users, Trophy, TrendingUp, AlertCircle, Coins, Gift } from 'lucide-react'
+import TicketPurchaseModal from '../components/TicketPurchaseModal'
 
 function LotteryPage() {
   const [ticketAmount, setTicketAmount] = useState(1)
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [purchasedTickets, setPurchasedTickets] = useState(0)
+  const [boughtCount, setBoughtCount] = useState(0) // Pour afficher le bon nombre au succès
 
   // Données de démonstration
   const currentPrize = "5.75"
   const participants = 127
   const ticketPrice = "0.01"
-  const endTime = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000) // 2 jours
+  const endTime = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
   
-  const formatTimeRemaining = () => {
+  const formatTimeRemaining = useCallback(() => {
     const now = new Date()
     const diff = endTime - now
     const days = Math.floor(diff / (1000 * 60 * 60 * 24))
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
     return `${days}j ${hours}h ${minutes}m`
-  }
+  }, [endTime])
 
-  const handleBuyTickets = () => {
-    // TODO: Implémenter l'achat de billets
-    alert(`Achat de ${ticketAmount} billet(s) pour ${(ticketPrice * ticketAmount).toFixed(3)} ETH`)
-  }
+  const handleBuyTickets = useCallback(() => {
+    setBoughtCount(ticketAmount) // Sauvegarder le nombre de billets achetés
+    setShowConfirmation(true)
+  }, [ticketAmount])
+
+  const handleConfirmPurchase = useCallback(async () => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        setPurchasedTickets(prev => prev + ticketAmount)
+        console.log(`Achat confirmé: ${ticketAmount} billet(s) pour ${(ticketPrice * ticketAmount).toFixed(3)} ETH`)
+        setTicketAmount(1)
+        resolve()
+      }, 2000)
+    })
+  }, [ticketAmount, ticketPrice])
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -193,17 +208,28 @@ function LotteryPage() {
             {/* Stats & Info - Right Column */}
             <div className="space-y-6">
               {/* Your Tickets */}
-              <div className="bg-white rounded-2xl shadow-xl p-6">
+              <div className="bg-white rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-shadow duration-300">
                 <h2 className="text-xl font-bold text-anthracite-900 mb-6 flex items-center gap-3">
                   <Gift className="w-5 h-5 text-chance-500" />
                   Mes Billets
                 </h2>
                 
-                <div className="text-center py-8">
-                  <Ticket className="w-16 h-16 text-anthracite-300 mx-auto mb-4" />
-                  <p className="text-anthracite-600 mb-2">Aucun billet</p>
-                  <p className="text-sm text-anthracite-400">Achetez des billets pour participer</p>
-                </div>
+                {purchasedTickets > 0 ? (
+                  <div className="text-center py-8">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-chance-100 rounded-full mb-4">
+                      <Ticket className="w-8 h-8 text-chance-600" />
+                    </div>
+                    <p className="text-3xl font-bold text-anthracite-900 mb-2">{purchasedTickets}</p>
+                    <p className="text-sm text-anthracite-600">Billet{purchasedTickets > 1 ? 's' : ''} acheté{purchasedTickets > 1 ? 's' : ''}</p>
+                    <p className="text-xs text-chance-600 mt-3 font-medium">Bonne chance! 🍀</p>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Ticket className="w-16 h-16 text-anthracite-300 mx-auto mb-4" />
+                    <p className="text-anthracite-600 mb-2">Aucun billet</p>
+                    <p className="text-sm text-anthracite-400">Achetez des billets pour participer</p>
+                  </div>
+                )}
               </div>
 
               {/* Previous Winners */}
@@ -276,6 +302,15 @@ function LotteryPage() {
           </div>
         </div>
       </div>
+
+      {/* Modal de confirmation d'achat */}
+      <TicketPurchaseModal
+        isOpen={showConfirmation}
+        onClose={() => setShowConfirmation(false)}
+        ticketCount={boughtCount}
+        totalPrice={(ticketPrice * boughtCount).toFixed(3)}
+        onConfirm={handleConfirmPurchase}
+      />
     </div>
   )
 }

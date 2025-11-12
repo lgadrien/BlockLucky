@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Ticket, Clock, Users, Trophy, TrendingUp, AlertCircle, Coins, Gift } from 'lucide-react'
 import { useWeb3 } from '../context/Web3Context'
+import TicketPurchaseModal from './TicketPurchaseModal'
 
 function Lottery({ isOpen, onClose }) {
   const { account } = useWeb3()
   const [ticketAmount, setTicketAmount] = useState(1)
+  const [showConfirmation, setShowConfirmation] = useState(false)
 
   // Données de démonstration
   const currentPrize = "5.75"
@@ -22,8 +24,20 @@ function Lottery({ isOpen, onClose }) {
   }
 
   const handleBuyTickets = () => {
-    // TODO: Implémenter l'achat de billets
-    alert(`Achat de ${ticketAmount} billet(s) pour ${(ticketPrice * ticketAmount).toFixed(3)} ETH`)
+    // Ouvrir le modal de confirmation plutôt que d'afficher une alerte
+    setShowConfirmation(true)
+  }
+
+  const handleConfirmPurchase = async () => {
+    // Simuler l'achat de billets
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log(`Achat confirmé: ${ticketAmount} billet(s) pour ${(ticketPrice * ticketAmount).toFixed(3)} ETH`)
+        // Réinitialiser le nombre de billets
+        setTicketAmount(1)
+        resolve()
+      }, 2000) // Simulation de délai de transaction
+    })
   }
 
   if (!isOpen) return null
@@ -279,6 +293,15 @@ function Lottery({ isOpen, onClose }) {
             </div>
           </div>
         </div>
+
+        {/* Modal de confirmation d'achat */}
+        <TicketPurchaseModal
+          isOpen={showConfirmation}
+          onClose={() => setShowConfirmation(false)}
+          ticketCount={ticketAmount}
+          totalPrice={(ticketPrice * ticketAmount).toFixed(3)}
+          onConfirm={handleConfirmPurchase}
+        />
       </div>
     </div>
   )

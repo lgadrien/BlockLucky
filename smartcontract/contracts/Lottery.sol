@@ -29,4 +29,10 @@ contract Lottery {
         winner = address(0);
     }
 
+    // Fonction pour acheter un ticket de loterie
+    function buyTicket() public payable {
+        require(msg.value == ticketPrice, "Le montant envoye doit etre egal au prix du ticket.");
+        participantsCount += 1;
+        totalBets += msg.value;
+    }
 }

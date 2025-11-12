@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react'
 import { Menu, X, Home, User, Ticket } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import MetaMaskLogin from '../MetaMaskLogin'
-import Profile from '../Profile'
-import Lottery from '../Lottery'
 import { useWeb3 } from '../../context/Web3Context'
 
 function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const [showProfileModal, setShowProfileModal] = useState(false)
-  const [showLotteryModal, setShowLotteryModal] = useState(false)
   const { isConnected } = useWeb3()
 
   useEffect(() => {
@@ -56,37 +53,37 @@ function Header() {
             {isConnected ? (
               <>
                 {/* Bouton Home */}
-                <a
-                  href="#hero"
+                <Link
+                  to="/"
                   className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 relative group flex items-center gap-2"
                   style={{ fontFamily: 'Inter, sans-serif' }}
                 >
                   <Home className="w-4 h-4" />
                   <span>Accueil</span>
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blockchain-500 group-hover:w-full transition-all duration-300"></span>
-                </a>
+                </Link>
 
                 {/* Bouton Profil */}
-                <button
-                  onClick={() => setShowProfileModal(true)}
+                <Link
+                  to="/profil"
                   className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 relative group flex items-center gap-2"
                   style={{ fontFamily: 'Inter, sans-serif' }}
                 >
                   <User className="w-4 h-4" />
                   <span>Profil</span>
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blockchain-500 group-hover:w-full transition-all duration-300"></span>
-                </button>
+                </Link>
 
                 {/* Bouton Lotterie */}
-                <button
-                  onClick={() => setShowLotteryModal(true)}
+                <Link
+                  to="/lotterie"
                   className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 relative group flex items-center gap-2"
                   style={{ fontFamily: 'Inter, sans-serif' }}
                 >
                   <Ticket className="w-4 h-4" />
                   <span>Lotterie</span>
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blockchain-500 group-hover:w-full transition-all duration-300"></span>
-                </button>
+                </Link>
               </>
             ) : (
               <>
@@ -123,41 +120,37 @@ function Header() {
               {isConnected ? (
                 <>
                   {/* Bouton Home Mobile */}
-                  <a
-                    href="#hero"
+                  <Link
+                    to="/"
                     className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 py-2 flex items-center gap-2"
                     style={{ fontFamily: 'Inter, sans-serif' }}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <Home className="w-4 h-4" />
                     <span>Accueil</span>
-                  </a>
+                  </Link>
 
                   {/* Bouton Profil Mobile */}
-                  <button
-                    onClick={() => {
-                      setShowProfileModal(true)
-                      setIsMobileMenuOpen(false)
-                    }}
+                  <Link
+                    to="/profil"
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 py-2 flex items-center gap-2 text-left"
                     style={{ fontFamily: 'Inter, sans-serif' }}
                   >
                     <User className="w-4 h-4" />
                     <span>Profil</span>
-                  </button>
+                  </Link>
 
                   {/* Bouton Lotterie Mobile */}
-                  <button
-                    onClick={() => {
-                      setShowLotteryModal(true)
-                      setIsMobileMenuOpen(false)
-                    }}
+                  <Link
+                    to="/lotterie"
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 py-2 flex items-center gap-2 text-left"
                     style={{ fontFamily: 'Inter, sans-serif' }}
                   >
                     <Ticket className="w-4 h-4" />
                     <span>Lotterie</span>
-                  </button>
+                  </Link>
                 </>
               ) : (
                 <>
@@ -181,12 +174,6 @@ function Header() {
           </div>
         )}
       </div>
-
-      {/* Profile Modal */}
-      <Profile isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} />
-
-      {/* Lottery Modal */}
-      <Lottery isOpen={showLotteryModal} onClose={() => setShowLotteryModal(false)} />
     </header>
   )
 }

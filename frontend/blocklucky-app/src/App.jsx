@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ArrowUp } from 'lucide-react'
 import Header from './components/layout/Header'
-import Hero from './components/Hero'
-import Features from './components/Features'
-import About from './components/About'
-import CTA from './components/CTA'
 import Footer from './components/layout/Footer'
+import HomePage from './pages/HomePage'
+import ProfilePage from './pages/ProfilePage'
+import LotteryPage from './pages/LotteryPage'
 
 function App() {
   const [showScrollTop, setShowScrollTop] = useState(false)
@@ -46,27 +46,30 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <Header />
-      <main>
-        <Hero />
-        <Features />
-        <About />
-        <CTA />
-      </main>
-      <Footer />
+    <Router>
+      <div className="min-h-screen bg-white">
+        <Header />
+        <main>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/profil" element={<ProfilePage />} />
+            <Route path="/lotterie" element={<LotteryPage />} />
+          </Routes>
+        </main>
+        <Footer />
 
-      {/* Scroll to top button */}
-      {showScrollTop && (
-        <button
-          onClick={scrollToTop}
-          className="fixed bottom-6 sm:bottom-8 right-6 sm:right-8 w-12 sm:w-14 h-12 sm:h-14 bg-linear-to-br from-blockchain-600 to-chance-600 text-white rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110 z-40 flex items-center justify-center group"
-          aria-label="Retour en haut"
-        >
-          <ArrowUp className="w-5 sm:w-6 h-5 sm:h-6 group-hover:-translate-y-1 transition-transform" />
-        </button>
-      )}
-    </div>
+        {/* Scroll to top button */}
+        {showScrollTop && (
+          <button
+            onClick={scrollToTop}
+            className="fixed bottom-6 sm:bottom-8 right-6 sm:right-8 w-12 sm:w-14 h-12 sm:h-14 bg-linear-to-br from-blockchain-600 to-chance-600 text-white rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110 z-40 flex items-center justify-center group"
+            aria-label="Retour en haut"
+          >
+            <ArrowUp className="w-5 sm:w-6 h-5 sm:h-6 group-hover:-translate-y-1 transition-transform" />
+          </button>
+        )}
+      </div>
+    </Router>
   )
 }
 

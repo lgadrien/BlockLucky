@@ -1,32 +1,10 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react'
 import { ethers } from 'ethers'
+import { setCookie, getCookie, deleteCookie } from '../utils/cookies'
+import { formatAddress as formatAddressUtil } from '../utils/formatters'
+import { DURATIONS, COOKIE_KEYS } from '../utils/constants'
 
 const Web3Context = createContext()
-
-// Durée d'inactivité avant déconnexion (5 minutes en millisecondes)
-const INACTIVITY_TIMEOUT = 5 * 60 * 1000
-
-// Fonctions pour gérer les cookies
-const setCookie = (name, value, days = 7) => {
-  const expires = new Date()
-  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000)
-  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`
-}
-
-const getCookie = (name) => {
-  const nameEQ = name + "="
-  const ca = document.cookie.split(';')
-  for (let i = 0; i < ca.length; i++) {
-    let c = ca[i]
-    while (c.charAt(0) === ' ') c = c.substring(1, c.length)
-    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length)
-  }
-  return null
-}
-
-const deleteCookie = (name) => {
-  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`
-}
 
 export const Web3Provider = ({ children }) => {
   const [account, setAccount] = useState(null)
@@ -53,7 +31,7 @@ export const Web3Provider = ({ children }) => {
     setChainId(null)
     
     // Supprimer le cookie
-    deleteCookie('blocklucky_account')
+    deleteCookie(COOKIE_KEYS.ACCOUNT)
     
     // Effacer le timer d'inactivité
     if (inactivityTimerRef.current) {
@@ -72,7 +50,7 @@ export const Web3Provider = ({ children }) => {
     inactivityTimerRef.current = setTimeout(() => {
       console.log('Déconnexion automatique due à l\'inactivité')
       disconnectWallet()
-    }, INACTIVITY_TIMEOUT)
+    }, DURATIONS.INACTIVITY_TIMEOUT)
   }, [disconnectWallet])
 
   // Connecter le wallet
@@ -103,7 +81,7 @@ export const Web3Provider = ({ children }) => {
       setIsConnected(true)
 
       // Sauvegarder dans les cookies
-      setCookie('blocklucky_account', accounts[0], 7)
+      setCookie(COOKIE_KEYS.ACCOUNT, accounts[0], DURATIONS.COOKIE_EXPIRY_DAYS)
       
       // Démarrer le timer d'inactivité
       resetInactivityTimer()
@@ -124,8 +102,7 @@ export const Web3Provider = ({ children }) => {
 
   // Formater l'adresse pour l'affichage
   const formatAddress = useCallback((address) => {
-    if (!address) return ''
-    return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`
+    return formatAddressUtil(address)
   }, [])
 
   // Écouter les changements de compte
@@ -137,7 +114,7 @@ export const Web3Provider = ({ children }) => {
         disconnectWallet()
       } else if (accounts[0] !== account) {
         setAccount(accounts[0])
-        setCookie('blocklucky_account', accounts[0], 7)
+        setCookie(COOKIE_KEYS.ACCOUNT, accounts[0], DURATIONS.COOKIE_EXPIRY_DAYS)
       }
     }
 
@@ -156,7 +133,7 @@ export const Web3Provider = ({ children }) => {
 
   // Reconnexion automatique depuis les cookies au chargement
   useEffect(() => {
-    const savedAccount = getCookie('blocklucky_account')
+    const savedAccount = getCookie(COOKIE_KEYS.ACCOUNT)
     
     if (savedAccount && isMetaMaskInstalled() && !isConnected) {
       // Tenter de reconnecter automatiquement
@@ -179,11 +156,11 @@ export const Web3Provider = ({ children }) => {
             resetInactivityTimer()
           } else {
             // Le compte sauvegardé ne correspond pas, supprimer le cookie
-            deleteCookie('blocklucky_account')
+            deleteCookie(COOKIE_KEYS.ACCOUNT)
           }
         } catch (err) {
           console.error('Erreur lors de la reconnexion automatique:', err)
-          deleteCookie('blocklucky_account')
+          deleteCookie(COOKIE_KEYS.ACCOUNT)
         }
       }
       

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Bell, X, Check, Ticket, Trophy, PlayCircle, StopCircle } from 'lucide-react'
 import { useNotifications } from '../context/NotificationContext'
+import { formatTimeAgo } from '../utils/formatters'
 
 function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false)
@@ -37,19 +38,6 @@ function NotificationBell() {
       default:
         return <Bell className="w-5 h-5 text-gray-500" />
     }
-  }
-
-  const formatTimestamp = (timestamp) => {
-    const now = new Date()
-    const diff = now - new Date(timestamp)
-    const minutes = Math.floor(diff / 60000)
-    const hours = Math.floor(diff / 3600000)
-    const days = Math.floor(diff / 86400000)
-
-    if (minutes < 1) return 'À l\'instant'
-    if (minutes < 60) return `Il y a ${minutes} min`
-    if (hours < 24) return `Il y a ${hours}h`
-    return `Il y a ${days}j`
   }
 
   const handleNotificationClick = (notif) => {
@@ -150,7 +138,7 @@ function NotificationBell() {
                         </p>
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-xs text-gray-500" style={{ fontFamily: 'Inter, sans-serif' }}>
-                            {formatTimestamp(notif.timestamp)}
+                            {formatTimeAgo(notif.timestamp)}
                           </span>
                           <button
                             onClick={(e) => {

@@ -6,6 +6,8 @@ import Footer from './components/layout/Footer'
 import HomePage from './pages/HomePage'
 import ProfilePage from './pages/ProfilePage'
 import LotteryPage from './pages/LotteryPage'
+import NotFoundPage from './pages/NotFoundPage'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
   const [showScrollTop, setShowScrollTop] = useState(false)
@@ -52,8 +54,24 @@ function App() {
         <main>
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/profil" element={<ProfilePage />} />
-            <Route path="/lotterie" element={<LotteryPage />} />
+            <Route 
+              path="/profil" 
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/lotterie" 
+              element={
+                <ProtectedRoute>
+                  <LotteryPage />
+                </ProtectedRoute>
+              } 
+            />
+            {/* 404 - Page non trouvée */}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
         <Footer />

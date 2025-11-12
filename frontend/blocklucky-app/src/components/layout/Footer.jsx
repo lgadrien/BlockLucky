@@ -1,7 +1,10 @@
 ﻿import { Github, Twitter, Linkedin, Mail, ArrowUpRight } from 'lucide-react'
+import { useLocation } from 'react-router-dom'
 
 function Footer() {
   const currentYear = new Date().getFullYear()
+  const location = useLocation()
+  const isHomePage = location.pathname === '/'
 
   const links = {
     product: [
@@ -40,21 +43,23 @@ function Footer() {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* CTA Section */}
-        <div className="py-12 sm:py-16 border-b border-gray-200">
-          <div className="max-w-4xl mx-auto text-center">
-            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-anthracite-700 mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-              Prêt à commencer ?
-            </h3>
-            <p className="text-base sm:text-lg text-anthracite-700 mb-6 sm:mb-8" style={{ fontFamily: 'Inter, sans-serif' }}>
-              Rejoignez BlockLucky dès aujourd'hui et participez à la révolution de la loterie décentralisée.
-            </p>
-            <button className="group inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-linear-to-r from-blockchain-600 to-chance-600 hover:from-blockchain-700 hover:to-chance-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-              Participer maintenant
-              <ArrowUpRight className="w-4 sm:w-5 h-4 sm:h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </button>
+        {/* CTA Section - Only on homepage */}
+        {isHomePage && (
+          <div className="py-12 sm:py-16 border-b border-gray-200">
+            <div className="max-w-4xl mx-auto text-center">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-anthracite-700 mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                Prêt à commencer ?
+              </h3>
+              <p className="text-base sm:text-lg text-anthracite-700 mb-6 sm:mb-8" style={{ fontFamily: 'Inter, sans-serif' }}>
+                Rejoignez BlockLucky dès aujourd'hui et participez à la révolution de la loterie décentralisée.
+              </p>
+              <button className="group inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-linear-to-r from-blockchain-600 to-chance-600 hover:from-blockchain-700 hover:to-chance-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                Participer maintenant
+                <ArrowUpRight className="w-4 sm:w-5 h-4 sm:h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Links Section */}
         <div className="py-10 sm:py-12">

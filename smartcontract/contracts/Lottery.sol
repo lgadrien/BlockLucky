@@ -5,6 +5,9 @@ contract Lottery {
     
 // Variables d'état
 
+    enum LotteryState { OPEN, CLOSED }
+
+    LotteryState public lotteryState;
     // Propriétaire du contrat
     address private owner;
     // Adresse des participants
@@ -32,6 +35,7 @@ contract Lottery {
         timeLeft = 0;
         ticketPrice = 0.0016 ether;
         winner = address(0);
+        lotteryState = LotteryState.OPEN;
     }
 
 // Event pour l'achat d'un ticket
@@ -52,4 +56,6 @@ event TicketPurchased(address indexed participant, uint amount);
         // Émettre un événement pour l'achat du ticket
         emit TicketPurchased(msg.sender, msg.value);
     }
+
+
 }

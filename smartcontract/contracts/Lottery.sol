@@ -3,8 +3,13 @@ pragma solidity ^0.8.0;
 
 contract Lottery {
     
+// Variables d'état
+
     // Propriétaire du contrat
     address private owner;
+    // Adresse des participants
+    address[] public participants;
+    mapping(address => uint) public ticketBought;
     // Nombre de participants
     uint public participantsCount;
     // Nombre minimum de participants requis pour tirer un gagnant
@@ -29,6 +34,9 @@ contract Lottery {
         winner = address(0);
     }
 
+// Event pour l'achat d'un ticket
+event TicketPurchased(address indexed participant, uint amount);
+
     // Fonction pour acheter un ticket de loterie
     function buyTicket() public payable {
         // Vérifier que le montant envoyé est égal au prix du ticket
@@ -37,5 +45,11 @@ contract Lottery {
         participantsCount += 1;
         // Ajouter le montant de la mise au total des mises
         totalBets += msg.value;
+        // Ajouter le participant à la liste et incrémenter le nombre de tickets achetés
+        participants.push(msg.sender);
+        // Incrémenter le nombre de tickets achetés par le participant
+        ticketBought[msg.sender] += 1;   
+        // Émettre un événement pour l'achat du ticket
+        emit TicketPurchased(msg.sender, msg.value);
     }
 }

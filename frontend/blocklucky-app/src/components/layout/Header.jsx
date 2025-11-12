@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
+import MetaMaskLogin from '../MetaMaskLogin'
 
 function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -52,9 +53,7 @@ function Header() {
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blockchain-500 group-hover:w-full transition-all duration-300"></span>
               </a>
             ))}
-            <button className="px-6 py-2.5 bg-chance-500 hover:bg-chance-600 text-white font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 transform">
-              Commencer
-            </button>
+            <MetaMaskLogin />
           </nav>
 
           {/* Mobile menu button */}
@@ -82,9 +81,9 @@ function Header() {
                   {link.name}
                 </a>
               ))}
-              <button className="mt-2 px-6 py-2.5 bg-chance-500 hover:bg-chance-600 text-white font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg w-full">
-                Commencer
-              </button>
+              <div className="mt-2">
+                <MetaMaskLogin />
+              </div>
             </nav>
           </div>
         )}

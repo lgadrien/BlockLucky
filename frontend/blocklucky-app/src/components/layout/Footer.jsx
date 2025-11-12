@@ -1,15 +1,22 @@
 ﻿import { Github, Twitter, Linkedin, Mail, ArrowUpRight } from 'lucide-react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useWeb3 } from '../../context/Web3Context'
 
 function Footer() {
   const currentYear = new Date().getFullYear()
   const location = useLocation()
   const isHomePage = location.pathname === '/'
-  const { connectWallet, isLoading } = useWeb3()
+  const { connectWallet, isLoading, isConnected } = useWeb3()
+  const navigate = useNavigate()
 
-  const handleConnect = async () => {
-    await connectWallet()
+  const handleCTA = async () => {
+    if (isConnected) {
+      // Si déjà connecté, aller à la page lotterie
+      navigate('/lotterie')
+    } else {
+      // Sinon, connecter le wallet
+      await connectWallet()
+    }
   }
 
   const links = {
@@ -60,12 +67,12 @@ function Footer() {
                 Rejoignez BlockLucky dès aujourd'hui et participez à la révolution de la loterie décentralisée.
               </p>
               <button 
-                onClick={handleConnect}
+                onClick={handleCTA}
                 disabled={isLoading}
                 className="group inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-linear-to-r from-blockchain-600 to-chance-600 hover:from-blockchain-700 hover:to-chance-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100" 
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
-                {isLoading ? 'Connexion...' : 'Participer maintenant'}
+                {isLoading ? 'Connexion...' : (isConnected ? 'Aller à la lotterie' : 'Participer maintenant')}
                 <ArrowUpRight className="w-4 sm:w-5 h-4 sm:h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </button>
             </div>

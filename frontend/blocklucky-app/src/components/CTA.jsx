@@ -1,11 +1,19 @@
 import { Sparkles } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useWeb3 } from '../context/Web3Context'
 
 function CTA() {
-  const { connectWallet, isLoading } = useWeb3()
+  const { connectWallet, isLoading, isConnected } = useWeb3()
+  const navigate = useNavigate()
 
-  const handleConnect = async () => {
-    await connectWallet()
+  const handleCTA = async () => {
+    if (isConnected) {
+      // Si déjà connecté, aller à la page lotterie
+      navigate('/lotterie')
+    } else {
+      // Sinon, connecter le wallet
+      await connectWallet()
+    }
   }
 
   return (
@@ -32,12 +40,12 @@ function CTA() {
 
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4" data-scroll>
           <button 
-            onClick={handleConnect}
+            onClick={handleCTA}
             disabled={isLoading}
             className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-white hover:bg-gray-50 text-blockchain-600 text-sm sm:text-base font-bold rounded-xl transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-105 transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100" 
             style={{ fontFamily: 'Montserrat, sans-serif' }}
           >
-            {isLoading ? 'Connexion...' : 'Commencer maintenant'}
+            {isLoading ? 'Connexion...' : (isConnected ? 'Participer maintenant' : 'Commencer maintenant')}
           </button>
         </div>
 

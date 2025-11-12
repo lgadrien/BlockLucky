@@ -1,11 +1,19 @@
 import { ArrowRight } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useWeb3 } from '../context/Web3Context'
 
 function Hero() {
-  const { connectWallet, isLoading } = useWeb3()
+  const { connectWallet, isLoading, isConnected } = useWeb3()
+  const navigate = useNavigate()
 
-  const handleConnect = async () => {
-    await connectWallet()
+  const handleCTA = async () => {
+    if (isConnected) {
+      // Si déjà connecté, aller à la page lotterie
+      navigate('/lotterie')
+    } else {
+      // Sinon, connecter le wallet
+      await connectWallet()
+    }
   }
 
   return (
@@ -44,12 +52,12 @@ function Hero() {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
               <button 
-                onClick={handleConnect}
+                onClick={handleCTA}
                 disabled={isLoading}
                 className="group inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-linear-to-r from-blockchain-600 to-chance-600 hover:from-blockchain-700 hover:to-chance-700 text-white text-sm sm:text-base font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100" 
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
-                {isLoading ? 'Connexion...' : 'Commencer maintenant'}
+                {isLoading ? 'Connexion...' : (isConnected ? 'Participer maintenant' : 'Commencer maintenant')}
                 <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>

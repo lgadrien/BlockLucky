@@ -59,5 +59,10 @@ event TicketPurchased(address indexed participant, uint amount);
         emit TicketPurchased(msg.sender, msg.value);
     }
 
+    // Fonction pour tirer un gagnant (à implémenter)
+    // Fonction pour distribuer les gains au gagnant (à implémenter)
+    // Fontion pour fermer la loterie (à implémenter)
+    // Fonction pour effacer les données de la loterie (à implémenter)
+
 
 }

@@ -1,7 +1,32 @@
-import { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react'
 import { ethers } from 'ethers'
 
 const Web3Context = createContext()
+
+// Durée d'inactivité avant déconnexion (5 minutes en millisecondes)
+const INACTIVITY_TIMEOUT = 5 * 60 * 1000
+
+// Fonctions pour gérer les cookies
+const setCookie = (name, value, days = 7) => {
+  const expires = new Date()
+  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000)
+  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`
+}
+
+const getCookie = (name) => {
+  const nameEQ = name + "="
+  const ca = document.cookie.split(';')
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i]
+    while (c.charAt(0) === ' ') c = c.substring(1, c.length)
+    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length)
+  }
+  return null
+}
+
+const deleteCookie = (name) => {
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`
+}
 
 export const Web3Provider = ({ children }) => {
   const [account, setAccount] = useState(null)
@@ -11,11 +36,44 @@ export const Web3Provider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const [chainId, setChainId] = useState(null)
+  const inactivityTimerRef = useRef(null)
 
   // Vérifier si MetaMask est installé
   const isMetaMaskInstalled = useCallback(() => {
     return typeof window !== 'undefined' && typeof window.ethereum !== 'undefined'
   }, [])
+
+  // Déconnecter le wallet
+  const disconnectWallet = useCallback(() => {
+    setAccount(null)
+    setIsConnected(false)
+    setProvider(null)
+    setSigner(null)
+    setError(null)
+    setChainId(null)
+    
+    // Supprimer le cookie
+    deleteCookie('blocklucky_account')
+    
+    // Effacer le timer d'inactivité
+    if (inactivityTimerRef.current) {
+      clearTimeout(inactivityTimerRef.current)
+    }
+  }, [])
+
+  // Réinitialiser le timer d'inactivité
+  const resetInactivityTimer = useCallback(() => {
+    // Effacer le timer existant
+    if (inactivityTimerRef.current) {
+      clearTimeout(inactivityTimerRef.current)
+    }
+
+    // Créer un nouveau timer
+    inactivityTimerRef.current = setTimeout(() => {
+      console.log('Déconnexion automatique due à l\'inactivité')
+      disconnectWallet()
+    }, INACTIVITY_TIMEOUT)
+  }, [disconnectWallet])
 
   // Connecter le wallet
   const connectWallet = useCallback(async () => {
@@ -44,6 +102,12 @@ export const Web3Provider = ({ children }) => {
       setChainId(chainIdData.chainId)
       setIsConnected(true)
 
+      // Sauvegarder dans les cookies
+      setCookie('blocklucky_account', accounts[0], 7)
+      
+      // Démarrer le timer d'inactivité
+      resetInactivityTimer()
+
       return true
     } catch (err) {
       console.error('Erreur de connexion:', err)
@@ -56,17 +120,7 @@ export const Web3Provider = ({ children }) => {
     } finally {
       setIsLoading(false)
     }
-  }, [isMetaMaskInstalled])
-
-  // Déconnecter le wallet
-  const disconnectWallet = useCallback(() => {
-    setAccount(null)
-    setIsConnected(false)
-    setProvider(null)
-    setSigner(null)
-    setError(null)
-    setChainId(null)
-  }, [])
+  }, [isMetaMaskInstalled, resetInactivityTimer])
 
   // Formater l'adresse pour l'affichage
   const formatAddress = useCallback((address) => {
@@ -83,6 +137,7 @@ export const Web3Provider = ({ children }) => {
         disconnectWallet()
       } else if (accounts[0] !== account) {
         setAccount(accounts[0])
+        setCookie('blocklucky_account', accounts[0], 7)
       }
     }
 
@@ -98,6 +153,74 @@ export const Web3Provider = ({ children }) => {
       window.ethereum.removeListener('chainChanged', handleChainChanged)
     }
   }, [account, disconnectWallet, isMetaMaskInstalled])
+
+  // Reconnexion automatique depuis les cookies au chargement
+  useEffect(() => {
+    const savedAccount = getCookie('blocklucky_account')
+    
+    if (savedAccount && isMetaMaskInstalled() && !isConnected) {
+      // Tenter de reconnecter automatiquement
+      const autoConnect = async () => {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' })
+          
+          if (accounts.length > 0 && accounts[0].toLowerCase() === savedAccount.toLowerCase()) {
+            const ethersProvider = new ethers.BrowserProvider(window.ethereum)
+            const ethersSigner = await ethersProvider.getSigner()
+            const chainIdData = await ethersProvider.getNetwork()
+
+            setProvider(ethersProvider)
+            setSigner(ethersSigner)
+            setAccount(accounts[0])
+            setChainId(chainIdData.chainId)
+            setIsConnected(true)
+            
+            // Démarrer le timer d'inactivité
+            resetInactivityTimer()
+          } else {
+            // Le compte sauvegardé ne correspond pas, supprimer le cookie
+            deleteCookie('blocklucky_account')
+          }
+        } catch (err) {
+          console.error('Erreur lors de la reconnexion automatique:', err)
+          deleteCookie('blocklucky_account')
+        }
+      }
+      
+      autoConnect()
+    }
+  }, [isMetaMaskInstalled, isConnected, resetInactivityTimer])
+
+  // Écouter l'activité de l'utilisateur pour réinitialiser le timer
+  useEffect(() => {
+    if (!isConnected) return
+
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click']
+    
+    const handleActivity = () => {
+      resetInactivityTimer()
+    }
+
+    // Ajouter les écouteurs d'événements
+    events.forEach(event => {
+      document.addEventListener(event, handleActivity)
+    })
+
+    // Initialiser le timer
+    resetInactivityTimer()
+
+    return () => {
+      // Nettoyer les écouteurs
+      events.forEach(event => {
+        document.removeEventListener(event, handleActivity)
+      })
+      
+      // Effacer le timer
+      if (inactivityTimerRef.current) {
+        clearTimeout(inactivityTimerRef.current)
+      }
+    }
+  }, [isConnected, resetInactivityTimer])
 
   const value = {
     account,

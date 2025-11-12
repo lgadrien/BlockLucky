@@ -1,6 +1,13 @@
-import { ArrowRight, Play } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
+import { useWeb3 } from '../context/Web3Context'
 
 function Hero() {
+  const { connectWallet, isLoading } = useWeb3()
+
+  const handleConnect = async () => {
+    await connectWallet()
+  }
+
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-16 sm:pt-20 overflow-hidden bg-linear-to-br from-gray-50 via-white to-blockchain-50" id="hero">
       {/* Decorative background elements */}
@@ -36,13 +43,14 @@ function Hero() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
-              <button className="group inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-linear-to-r from-blockchain-600 to-chance-600 hover:from-blockchain-700 hover:to-chance-700 text-white text-sm sm:text-base font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 transform" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-                Commencer maintenant
+              <button 
+                onClick={handleConnect}
+                disabled={isLoading}
+                className="group inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-linear-to-r from-blockchain-600 to-chance-600 hover:from-blockchain-700 hover:to-chance-700 text-white text-sm sm:text-base font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100" 
+                style={{ fontFamily: 'Montserrat, sans-serif' }}
+              >
+                {isLoading ? 'Connexion...' : 'Commencer maintenant'}
                 <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-              <button className="group inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-white hover:bg-gray-50 text-anthracite-700 text-sm sm:text-base font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg border border-gray-200" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-                <Play className="w-4 sm:w-5 h-4 sm:h-5" />
-                Voir la démo
               </button>
             </div>
 

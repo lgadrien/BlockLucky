@@ -1,10 +1,16 @@
 ﻿import { Github, Twitter, Linkedin, Mail, ArrowUpRight } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
+import { useWeb3 } from '../../context/Web3Context'
 
 function Footer() {
   const currentYear = new Date().getFullYear()
   const location = useLocation()
   const isHomePage = location.pathname === '/'
+  const { connectWallet, isLoading } = useWeb3()
+
+  const handleConnect = async () => {
+    await connectWallet()
+  }
 
   const links = {
     product: [
@@ -53,8 +59,13 @@ function Footer() {
               <p className="text-base sm:text-lg text-anthracite-700 mb-6 sm:mb-8" style={{ fontFamily: 'Inter, sans-serif' }}>
                 Rejoignez BlockLucky dès aujourd'hui et participez à la révolution de la loterie décentralisée.
               </p>
-              <button className="group inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-linear-to-r from-blockchain-600 to-chance-600 hover:from-blockchain-700 hover:to-chance-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-                Participer maintenant
+              <button 
+                onClick={handleConnect}
+                disabled={isLoading}
+                className="group inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-linear-to-r from-blockchain-600 to-chance-600 hover:from-blockchain-700 hover:to-chance-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100" 
+                style={{ fontFamily: 'Montserrat, sans-serif' }}
+              >
+                {isLoading ? 'Connexion...' : 'Participer maintenant'}
                 <ArrowUpRight className="w-4 sm:w-5 h-4 sm:h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </button>
             </div>

@@ -121,10 +121,43 @@ event TicketPurchased(address indexed participant, uint amount);
 
 
     // Fonction pour fermer la loterie (à implémenter)
+    function closeLottery() public {
+        // Vérifier que seul le propriétaire peut fermer la loterie
+        require(msg.sender == owner, "Seul le proprietaire peut fermer la loterie.");
+        // Vérifier que la loterie est ouverte
+        require(lotteryState == LotteryState.OPEN, "La loterie est deja fermee.");
+        // Vérifier que le temps imparti est écoulé
+        require(block.timestamp >= timeLeft, "Le temps imparti n est pas ecoule.");
+        // Fermer la loterie
+        lotteryState = LotteryState.CLOSED;
+        // Désigner un gagnant aléatoire parmi les participants
+        if (participantsCount > 0) {
+            uint randomIndex = uint(keccak256(abi.encodePacked(block.timestamp, block.prevrandao))) % participantsCount;
+            winner = participants[randomIndex];
+        } else {
+            winner = address(0); // Aucun participant, pas de gagnant
+        }
+    }
 
 
 
     // Fonction pour effacer les données de la loterie (à implémenter)
+    function resetLottery() public {
+        // Vérifier que seul le propriétaire peut réinitialiser la loterie
+        require(msg.sender == owner, "Seul le proprietaire peut reinitialiser la loterie.");
+        // Réinitialiser les données de la loterie
+        delete participants;
+        participantsCount = 0;
+        totalBets = 0;
+        timeLeft = 0;
+        winner = address(0);
+        lotteryState = LotteryState.CLOSED;
+    }
+
+    // Fonction pour obtenir la liste des participants
+    function getParticipants() public view returns (address[] memory) {
+        return participants;
+    }
 
 
 }

@@ -29,7 +29,7 @@ function App() {
               } 
             />
             <Route 
-              path="/lotterie" 
+              path="/loterie" 
               element={
                 <ProtectedRoute>
                   <LotteryPage />

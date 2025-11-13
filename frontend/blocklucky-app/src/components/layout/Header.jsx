@@ -75,14 +75,14 @@ function Header() {
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blockchain-500 group-hover:w-full transition-all duration-300"></span>
                 </Link>
 
-                {/* Bouton Lotterie */}
+                {/* Bouton Loterie */}
                 <Link
-                  to="/lotterie"
+                  to="/loterie"
                   className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 relative group flex items-center gap-2"
                   style={{ fontFamily: 'Inter, sans-serif' }}
                 >
                   <Ticket className="w-4 h-4" />
-                  <span>Lotterie</span>
+                  <span>Loterie</span>
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blockchain-500 group-hover:w-full transition-all duration-300"></span>
                 </Link>
               </>
@@ -146,15 +146,15 @@ function Header() {
                     <span>Profil</span>
                   </Link>
 
-                  {/* Bouton Lotterie Mobile */}
+                  {/* Bouton Loterie Mobile */}
                   <Link
-                    to="/lotterie"
+                    to="/loterie"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 py-2 flex items-center gap-2 text-left"
                     style={{ fontFamily: 'Inter, sans-serif' }}
                   >
                     <Ticket className="w-4 h-4" />
-                    <span>Lotterie</span>
+                    <span>Loterie</span>
                   </Link>
                 </>
               ) : (

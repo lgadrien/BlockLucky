@@ -9,7 +9,7 @@ export const DURATIONS = {
 export const ROUTES = {
   HOME: '/',
   PROFILE: '/profil',
-  LOTTERY: '/lotterie',
+  LOTTERY: '/loterie',
 }
 
 // Types de notifications

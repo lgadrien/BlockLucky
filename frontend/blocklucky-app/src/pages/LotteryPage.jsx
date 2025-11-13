@@ -43,14 +43,14 @@ function LotteryPage() {
     <div className="bg-gray-50 min-h-screen">
       <div className="pb-20">
         {/* Hero Section */}
-        <div className="bg-gradient-to-br from-chance-500 via-chance-600 to-blockchain-600 text-white pt-32 pb-32">
+        <div className="bg-linear-to-br from-chance-500 via-chance-600 to-blockchain-600 text-white pt-32 pb-32">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-lg rounded-full mb-6">
                 <Ticket className="w-10 h-10 text-white" />
               </div>
               <h1 className="text-4xl sm:text-5xl font-bold mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-                Lotterie BlockLucky
+                Loterie BlockLucky
               </h1>
               <p className="text-xl text-white/90 max-w-2xl mx-auto" style={{ fontFamily: 'Inter, sans-serif' }}>
                 Tentez votre chance et gagnez gros avec la blockchain
@@ -69,7 +69,7 @@ function LotteryPage() {
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold text-anthracite-900 flex items-center gap-3">
                     <Trophy className="w-6 h-6 text-chance-500" />
-                    Lotterie en Cours
+                    Loterie en Cours
                   </h2>
                   <span className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-semibold flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -78,7 +78,7 @@ function LotteryPage() {
                 </div>
 
                 {/* Prize Pool */}
-                <div className="bg-gradient-to-br from-chance-50 via-chance-100 to-blockchain-50 rounded-2xl p-8 mb-6 border-2 border-chance-300 text-center">
+                <div className="bg-linear-to-br from-chance-50 via-chance-100 to-blockchain-50 rounded-2xl p-8 mb-6 border-2 border-chance-300 text-center">
                   <p className="text-sm text-anthracite-600 mb-2 font-medium">Cagnotte Actuelle</p>
                   <div className="flex items-center justify-center gap-3 mb-4">
                     <Coins className="w-12 h-12 text-chance-600" />
@@ -155,7 +155,7 @@ function LotteryPage() {
 
                     <button
                       onClick={handleBuyTickets}
-                      className="w-full px-6 py-4 bg-gradient-to-r from-chance-500 to-blockchain-500 hover:from-chance-600 hover:to-blockchain-600 text-white font-bold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 text-lg"
+                      className="w-full px-6 py-4 bg-linear-to-r from-chance-500 to-blockchain-500 hover:from-chance-600 hover:to-blockchain-600 text-white font-bold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 text-lg"
                     >
                       <Ticket className="w-6 h-6" />
                       Acheter {ticketAmount} Billet{ticketAmount > 1 ? 's' : ''}
@@ -173,7 +173,7 @@ function LotteryPage() {
                 
                 <div className="space-y-4">
                   <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-10 h-10 bg-blockchain-100 text-blockchain-600 rounded-full flex items-center justify-center font-bold">
+                    <div className="shrink-0 w-10 h-10 bg-blockchain-100 text-blockchain-600 rounded-full flex items-center justify-center font-bold">
                       1
                     </div>
                     <div>
@@ -183,7 +183,7 @@ function LotteryPage() {
                   </div>
 
                   <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-10 h-10 bg-blockchain-100 text-blockchain-600 rounded-full flex items-center justify-center font-bold">
+                    <div className="shrink-0 w-10 h-10 bg-blockchain-100 text-blockchain-600 rounded-full flex items-center justify-center font-bold">
                       2
                     </div>
                     <div>
@@ -193,7 +193,7 @@ function LotteryPage() {
                   </div>
 
                   <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-10 h-10 bg-blockchain-100 text-blockchain-600 rounded-full flex items-center justify-center font-bold">
+                    <div className="shrink-0 w-10 h-10 bg-blockchain-100 text-blockchain-600 rounded-full flex items-center justify-center font-bold">
                       3
                     </div>
                     <div>
@@ -240,27 +240,27 @@ function LotteryPage() {
                 </h2>
                 
                 <div className="space-y-3">
-                  <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
+                  <div className="bg-linear-to-r from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-anthracite-600">Lotterie #12</span>
+                      <span className="text-xs text-anthracite-600">Loterie #12</span>
                       <Trophy className="w-4 h-4 text-green-600" />
                     </div>
                     <p className="font-mono text-sm font-semibold text-anthracite-900 mb-1">0x742d...3a9f</p>
                     <p className="text-sm font-bold text-green-600">3.2 ETH</p>
                   </div>
 
-                  <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
+                  <div className="bg-linear-to-r from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-anthracite-600">Lotterie #11</span>
+                      <span className="text-xs text-anthracite-600">Loterie #11</span>
                       <Trophy className="w-4 h-4 text-green-600" />
                     </div>
                     <p className="font-mono text-sm font-semibold text-anthracite-900 mb-1">0x8f1b...7c2e</p>
                     <p className="text-sm font-bold text-green-600">4.8 ETH</p>
                   </div>
 
-                  <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
+                  <div className="bg-linear-to-r from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-anthracite-600">Lotterie #10</span>
+                      <span className="text-xs text-anthracite-600">Loterie #10</span>
                       <Trophy className="w-4 h-4 text-green-600" />
                     </div>
                     <p className="font-mono text-sm font-semibold text-anthracite-900 mb-1">0x3d5a...1f8b</p>

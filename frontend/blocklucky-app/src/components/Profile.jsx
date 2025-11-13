@@ -46,7 +46,7 @@ function Profile({ isOpen, onClose }) {
     <div className="fixed inset-0 bg-gray-50 z-40 overflow-y-auto">
       <div className="min-h-screen pb-20">
         {/* Hero Section */}
-        <div className="bg-gradient-to-br from-blockchain-500 via-blockchain-600 to-chance-600 text-white pt-24 pb-32">
+        <div className="bg-linear-to-br from-blockchain-500 via-blockchain-600 to-chance-600 text-white pt-24 pb-32">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-lg rounded-full mb-6">
@@ -75,7 +75,7 @@ function Profile({ isOpen, onClose }) {
                 </h2>
 
                 {/* Balance Section */}
-                <div className="bg-gradient-to-br from-chance-50 to-chance-100 rounded-xl p-6 mb-6 border border-chance-200">
+                <div className="bg-linear-to-br from-chance-50 to-chance-100 rounded-xl p-6 mb-6 border border-chance-200">
                   <p className="text-sm text-anthracite-600 mb-3 font-medium">Solde Actuel</p>
                   <div className="flex items-center gap-3">
                     <Wallet className="w-8 h-8 text-chance-600" />
@@ -89,7 +89,7 @@ function Profile({ isOpen, onClose }) {
                 </div>
 
                 {/* Wallet Address */}
-                <div className="bg-gradient-to-r from-blockchain-50 to-blockchain-100 rounded-xl p-6 border border-blockchain-200">
+                <div className="bg-linear-to-r from-blockchain-50 to-blockchain-100 rounded-xl p-6 border border-blockchain-200">
                   <p className="text-sm text-anthracite-600 mb-3 font-medium">Adresse du Portefeuille</p>
                   <div className="flex items-center justify-between bg-white rounded-lg p-4 border border-blockchain-100 mb-3">
                     <span className="font-mono text-sm font-semibold text-anthracite-900 truncate">
@@ -151,7 +151,7 @@ function Profile({ isOpen, onClose }) {
                 
                 <div className="space-y-4">
                   {/* Lotteries Participated */}
-                  <div className="bg-gradient-to-r from-blockchain-50 to-blockchain-100 rounded-xl p-4 border border-blockchain-200">
+                  <div className="bg-linear-to-r from-blockchain-50 to-blockchain-100 rounded-xl p-4 border border-blockchain-200">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-anthracite-600 font-medium">Loteries jouées</span>
                       <Award className="w-4 h-4 text-blockchain-500" />
@@ -160,7 +160,7 @@ function Profile({ isOpen, onClose }) {
                   </div>
 
                   {/* Total Spent */}
-                  <div className="bg-gradient-to-r from-chance-50 to-chance-100 rounded-xl p-4 border border-chance-200">
+                  <div className="bg-linear-to-r from-chance-50 to-chance-100 rounded-xl p-4 border border-chance-200">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-anthracite-600 font-medium">Total dépensé</span>
                       <Wallet className="w-4 h-4 text-chance-500" />
@@ -169,7 +169,7 @@ function Profile({ isOpen, onClose }) {
                   </div>
 
                   {/* Wins */}
-                  <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
+                  <div className="bg-linear-to-r from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-anthracite-600 font-medium">Gains totaux</span>
                       <Award className="w-4 h-4 text-green-500" />

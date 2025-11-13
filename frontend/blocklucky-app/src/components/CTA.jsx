@@ -8,8 +8,8 @@ function CTA() {
 
   const handleCTA = async () => {
     if (isConnected) {
-      // Si déjà connecté, aller à la page lotterie
-      navigate('/lotterie')
+      // Si déjà connecté, aller à la page loterie
+      navigate('/loterie')
     } else {
       // Sinon, connecter le wallet
       await connectWallet()

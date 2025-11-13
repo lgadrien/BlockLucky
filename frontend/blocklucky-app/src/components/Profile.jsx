@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Copy, ExternalLink, Wallet, User, Award, History, TrendingUp } from 'lucide-react'
 import { useWeb3 } from '../context/Web3Context'
+import { ethers } from 'ethers'
 
 function Profile({ isOpen, onClose }) {
   const { account, formatAddress, provider } = useWeb3()
@@ -15,11 +16,18 @@ function Profile({ isOpen, onClose }) {
       try {
         setLoading(true)
         const balanceWei = await provider.getBalance(account)
-        // Convertir de Wei à ETH
-        const balanceEth = (balanceWei / 1e18).toFixed(4)
-        setBalance(balanceEth)
+        // formatEther convertit BigInt en string - PAS de conversion en Number !
+        const balanceEthString = ethers.formatEther(balanceWei)
+        // Garder seulement en string, limiter à 4 décimales
+        const dotIndex = balanceEthString.indexOf('.')
+        if (dotIndex !== -1) {
+          setBalance(balanceEthString.substring(0, dotIndex + 5))
+        } else {
+          setBalance(balanceEthString + '.0000')
+        }
       } catch (err) {
         console.error('Erreur lors de la récupération du solde:', err)
+        setBalance('0.0000')
       } finally {
         setLoading(false)
       }

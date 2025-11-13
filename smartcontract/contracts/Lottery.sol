@@ -147,19 +147,27 @@ event TicketPurchased(address indexed participant, uint amount);
 
 
 
-    // Fonction pour fermer la loterie (à implémenter)
-    function closeLottery() public {
+    // Fonction pour fermer la loterie avec une seed du frontend
+    function closeLottery(uint256 frontendSeed) public {
         // Vérifier que seul le propriétaire peut fermer la loterie
         require(msg.sender == owner, "Seul le proprietaire peut fermer la loterie.");
         // Vérifier que la loterie est ouverte
         require(lotteryState == LotteryState.OPEN, "La loterie est deja fermee.");
         // Vérifier que le temps imparti est écoulé
         require(block.timestamp >= timeLeft, "Le temps imparti n est pas ecoule.");
+        // Vérifier que la seed n'est pas nulle
+        require(frontendSeed > 0, "La seed du frontend doit etre superieure a zero.");
         // Fermer la loterie
         lotteryState = LotteryState.CLOSED;
-        // Désigner un gagnant aléatoire parmi les participants
+        // Désigner un gagnant aléatoire parmi les participants avec seed du frontend
         if (participantsCount > 0) {
-            uint randomIndex = uint(keccak256(abi.encodePacked(block.timestamp, block.prevrandao))) % participantsCount;
+            uint randomIndex = uint(keccak256(abi.encodePacked(
+                block.timestamp,
+                block.prevrandao,
+                frontendSeed,
+                msg.sender,
+                participantsCount
+            ))) % participantsCount;
             winner = participants[randomIndex];
         } else {
             winner = address(0); // Aucun participant, pas de gagnant

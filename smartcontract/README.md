@@ -325,30 +325,19 @@ Si vous redémarrez le nœud Hardhat :
 ```
 smartcontract/
 ├── contracts/
-│   ├── Lottery.sol          # Smart contract de loterie
-│   ├── Storage.sol          # Smart contract simple (test)
+│   ├── Lottery.sol          # Smart contract principal
 │   └── interfaces/          # Interfaces
-├── scripts/
-│   ├── deploy.js            # Déploiement (Storage + Lottery)
-│   ├── accounts.js          # Affiche les comptes locaux
-│   └── interact.js          # Interaction avec les contrats
 ├── test/
-│   └── Lottery.test.js      # Suite de 23 tests
-├── ignition/modules/
-│   └── Lottery.js           # Module Hardhat Ignition
-├── hardhat.config.js        # Configuration complète
+│   └── Lottery.test.js      # Suite de tests
+├── scripts/
+│   └── deploy.js            # Script de déploiement
+├── ignition/
+│   └── modules/
+│       └── Lottery.js       # Module Hardhat Ignition
+├── hardhat.config.js        # Configuration Hardhat
 ├── package.json             # Dépendances npm
-├── README.md                # Ce fichier
-└── GUIDE_BLOCKCHAIN_LOCALE.md  # Guide détaillé
+└── README.md               # Ce fichier
 ```
-
----
-
-## 📖 Documentation Complète
-
-Pour un guide détaillé avec toutes les commandes, troubleshooting et exemples, consultez **[GUIDE_BLOCKCHAIN_LOCALE.md](./GUIDE_BLOCKCHAIN_LOCALE.md)**
-
----
 
 ## 🔐 Sécurité
 

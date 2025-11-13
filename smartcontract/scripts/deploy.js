@@ -52,13 +52,95 @@ async function main() {
   // ============================================
   // Résumé du déploiement
   // ============================================
+  // Sauvegarder les adresses dans un fichier JSON
+  const fs = require('fs');
+  const path = require('path');
+  const contractsDir = path.join(__dirname, '..');
+  const addressesFile = path.join(contractsDir, 'deployed-addresses.json');
+  
+  const addresses = {
+    Storage: storageAddress,
+    Lottery: lotteryAddress,
+    deployedAt: new Date().toISOString(),
+    network: hre.network.name
+  };
+  
+  fs.writeFileSync(addressesFile, JSON.stringify(addresses, null, 2));
+  console.log("\n💾 Adresses sauvegardées dans:", addressesFile);
+
+  // ============================================
+  // Copier l'ABI vers le frontend
+  // ============================================
+  try {
+    const artifactPath = path.join(__dirname, '..', 'artifacts', 'contracts', 'Lottery.sol', 'Lottery.json');
+    const frontendABIPath = path.join(__dirname, '..', '..', 'frontend', 'blocklucky-app', 'src', 'contracts', 'lotteryABI.json');
+    
+    // Lire le fichier artifact
+    const artifact = JSON.parse(fs.readFileSync(artifactPath, 'utf8'));
+    
+    // Extraire uniquement l'ABI
+    const abi = artifact.abi;
+    
+    // Créer le dossier contracts s'il n'existe pas
+    const contractsFolder = path.dirname(frontendABIPath);
+    if (!fs.existsSync(contractsFolder)) {
+      fs.mkdirSync(contractsFolder, { recursive: true });
+    }
+    
+    // Écrire l'ABI dans le frontend
+    fs.writeFileSync(frontendABIPath, JSON.stringify(abi, null, 2));
+    console.log("💾 ABI copié vers le frontend:", frontendABIPath);
+  } catch (error) {
+    console.warn("⚠️ Impossible de copier l'ABI:", error.message);
+  }
+
+  // Mettre à jour le fichier .env du frontend
+  const frontendEnvPath = path.join(__dirname, '..', '..', 'frontend', 'blocklucky-app', '.env');
+  
+  try {
+    let envContent = '';
+    
+    // Lire le fichier .env existant s'il existe
+    if (fs.existsSync(frontendEnvPath)) {
+      envContent = fs.readFileSync(frontendEnvPath, 'utf8');
+    }
+    
+    // Mettre à jour ou ajouter VITE_LOTTERY_ADDRESS
+    const lotteryAddressLine = `VITE_LOTTERY_ADDRESS=${lotteryAddress}`;
+    
+    if (envContent.includes('VITE_LOTTERY_ADDRESS=')) {
+      // Remplacer l'ancienne adresse
+      envContent = envContent.replace(/VITE_LOTTERY_ADDRESS=.*/g, lotteryAddressLine);
+    } else {
+      // Ajouter la nouvelle ligne
+      envContent += `\n${lotteryAddressLine}`;
+    }
+    
+    // S'assurer que RPC_URL et CHAIN_ID sont présents
+    if (!envContent.includes('VITE_RPC_URL=')) {
+      envContent = `VITE_RPC_URL=http://127.0.0.1:8545\n` + envContent;
+    }
+    if (!envContent.includes('VITE_CHAIN_ID=')) {
+      envContent = envContent.replace(/VITE_RPC_URL=.*\n/, `$&VITE_CHAIN_ID=31337\n`);
+    }
+    
+    // Nettoyer les lignes vides multiples
+    envContent = envContent.replace(/\n\n+/g, '\n');
+    
+    fs.writeFileSync(frontendEnvPath, envContent.trim() + '\n');
+    console.log("💾 Fichier .env du frontend mis à jour:", frontendEnvPath);
+    console.log("   → VITE_LOTTERY_ADDRESS=" + lotteryAddress);
+  } catch (error) {
+    console.warn("⚠️ Impossible de mettre à jour le .env du frontend:", error.message);
+  }
+
   console.log("\n" + "=".repeat(60));
   console.log("✅ DÉPLOIEMENT RÉUSSI");
   console.log("=".repeat(60));
   console.log("\n📝 Adresses des contrats:");
   console.log("   Storage:", storageAddress);
   console.log("   Lottery:", lotteryAddress);
-  console.log("\n💡 Sauvegardez ces adresses pour interagir avec vos contrats!\n");
+  console.log("\n💡 Les adresses sont automatiquement sauvegardées!\n");
 }
 
 main()

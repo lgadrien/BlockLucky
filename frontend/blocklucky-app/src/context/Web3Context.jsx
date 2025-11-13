@@ -53,6 +53,53 @@ export const Web3Provider = ({ children }) => {
     }, DURATIONS.INACTIVITY_TIMEOUT)
   }, [disconnectWallet])
 
+  // Fonction pour vérifier et changer de réseau
+  const switchToHardhatNetwork = useCallback(async () => {
+    if (!isMetaMaskInstalled()) {
+      setError('MetaMask n\'est pas installé.')
+      return false
+    }
+
+    try {
+      // Essayer de changer vers le réseau Hardhat
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: '0x7a69' }], // 31337 en hexadécimal
+      })
+      return true
+    } catch (switchError) {
+      // Si le réseau n'existe pas, l'ajouter
+      if (switchError.code === 4902) {
+        try {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [
+              {
+                chainId: '0x7a69', // 31337 en hexadécimal
+                chainName: 'Hardhat Local',
+                nativeCurrency: {
+                  name: 'Ethereum',
+                  symbol: 'ETH',
+                  decimals: 18
+                },
+                rpcUrls: ['http://127.0.0.1:8545'],
+                blockExplorerUrls: null
+              }
+            ]
+          })
+          return true
+        } catch (addError) {
+          console.error('Erreur lors de l\'ajout du réseau:', addError)
+          setError('Impossible d\'ajouter le réseau Hardhat.')
+          return false
+        }
+      }
+      console.error('Erreur lors du changement de réseau:', switchError)
+      setError('Impossible de changer de réseau.')
+      return false
+    }
+  }, [isMetaMaskInstalled])
+
   // Connecter le wallet
   const connectWallet = useCallback(async () => {
     if (!isMetaMaskInstalled()) {
@@ -64,6 +111,18 @@ export const Web3Provider = ({ children }) => {
       setIsLoading(true)
       setError(null)
 
+      // Vérifier et changer vers le réseau Hardhat si nécessaire
+      const currentChainId = await window.ethereum.request({ method: 'eth_chainId' })
+      console.log('Chain ID actuel:', currentChainId, '(attendu: 0x7a69)')
+      
+      if (currentChainId !== '0x7a69') {
+        console.log('Changement vers le réseau Hardhat...')
+        const switched = await switchToHardhatNetwork()
+        if (!switched) {
+          throw new Error('Impossible de se connecter au réseau Hardhat')
+        }
+      }
+
       // Demander l'accès aux comptes
       const accounts = await window.ethereum.request({
         method: 'eth_requestAccounts'
@@ -73,6 +132,9 @@ export const Web3Provider = ({ children }) => {
       const ethersProvider = new ethers.BrowserProvider(window.ethereum)
       const ethersSigner = await ethersProvider.getSigner()
       const chainIdData = await ethersProvider.getNetwork()
+
+      console.log('✅ Connecté au réseau:', chainIdData.chainId.toString())
+      console.log('✅ Compte:', accounts[0])
 
       setProvider(ethersProvider)
       setSigner(ethersSigner)
@@ -209,6 +271,7 @@ export const Web3Provider = ({ children }) => {
     chainId,
     connectWallet,
     disconnectWallet,
+    switchToHardhatNetwork,
     formatAddress,
     isMetaMaskInstalled
   }

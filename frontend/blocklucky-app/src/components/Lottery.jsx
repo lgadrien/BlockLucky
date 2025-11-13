@@ -1,44 +1,174 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Ticket, Clock, Users, Trophy, TrendingUp, AlertCircle, Coins, Gift } from 'lucide-react'
 import { useWeb3 } from '../context/Web3Context'
-import TicketPurchaseModal from './TicketPurchaseModal'
+import lotteryHelper from '../utils/contractHelper'
 
 function Lottery({ isOpen, onClose }) {
-  const { account } = useWeb3()
+  const { account, provider, signer } = useWeb3()
   const [ticketAmount, setTicketAmount] = useState(1)
-  const [showConfirmation, setShowConfirmation] = useState(false)
-
-  // Données de démonstration
-  const currentPrize = "5.75"
-  const participants = 127
-  const ticketPrice = "0.01"
-  const endTime = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000) // 2 jours
   
+  // États pour les données du contrat
+  const [ticketPrice, setTicketPrice] = useState("0.0016")
+  const [currentPrize, setCurrentPrize] = useState("0")
+  const [participants, setParticipants] = useState(0)
+  const [lotteryState, setLotteryState] = useState(1) // 0 = OPEN, 1 = CLOSED
+  const [endTime, setEndTime] = useState(new Date(Date.now() + 2 * 24 * 60 * 60 * 1000))
+  const [userTickets, setUserTickets] = useState(0)
+  const [isLoadingData, setIsLoadingData] = useState(false)
+  const [lotteryHistory, setLotteryHistory] = useState([])
+  
+  // Initialiser le contrat
+  useEffect(() => {
+    if (provider) {
+      lotteryHelper.initWithProvider(provider)
+    }
+    if (signer) {
+      lotteryHelper.initWithSigner(signer)
+    }
+  }, [provider, signer])
+
+  // Charger les données du contrat
+  const loadLotteryData = async () => {
+    if (!lotteryHelper.isInitialized()) {
+      console.log("⚠️ Helper non initialisé")
+      return
+    }
+    
+    try {
+      setIsLoadingData(true)
+      
+      // Utiliser la fonction loadAllData du helper
+      const data = await lotteryHelper.loadAllData(account)
+      
+      setTicketPrice(data.ticketPrice)
+      setLotteryState(data.lotteryState)
+      setParticipants(data.participantsCount)
+      setCurrentPrize(data.totalBets)
+      setUserTickets(data.userTickets)
+      
+      // Calculer le temps restant
+      if (data.timeLeft > 0) {
+        setEndTime(new Date(data.timeLeft * 1000))
+      }
+      
+      // Formater l'historique (prendre les 3 derniers)
+      const formattedHistory = data.history.slice(-3).reverse()
+      setLotteryHistory(formattedHistory)
+      
+    } catch (error) {
+      console.error("❌ Erreur lors du chargement des données:", error)
+    } finally {
+      setIsLoadingData(false)
+    }
+  }
+
+  // Charger les données au montage et toutes les 10 secondes
+  useEffect(() => {
+    if (lotteryHelper.isInitialized() && isOpen) {
+      loadLotteryData()
+      const interval = setInterval(loadLotteryData, 10000)
+      return () => clearInterval(interval)
+    }
+  }, [provider, signer, account, isOpen])
+
   const formatTimeRemaining = () => {
     const now = new Date()
     const diff = endTime - now
+    if (diff <= 0) return "Terminé"
     const days = Math.floor(diff / (1000 * 60 * 60 * 24))
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
     return `${days}j ${hours}h ${minutes}m`
   }
 
-  const handleBuyTickets = () => {
-    // Ouvrir le modal de confirmation plutôt que d'afficher une alerte
-    setShowConfirmation(true)
-  }
+  const handleBuyTickets = async () => {
+    // Vérifier que le wallet est connecté
+    if (!account || !signer) {
+      alert("⚠️ Veuillez connecter votre wallet d'abord !")
+      return
+    }
+    
+    // Vérifier que la loterie est ouverte
+    if (lotteryState !== 0) {
+      alert("⚠️ La loterie est fermée !")
+      return
+    }
 
-  const handleConfirmPurchase = async () => {
-    // Simuler l'achat de billets
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log(`Achat confirmé: ${ticketAmount} billet(s) pour ${(ticketPrice * ticketAmount).toFixed(3)} ETH`)
+    // Mode debug : afficher les infos de connexion
+    console.log('🔍 Debug - État de connexion:')
+    console.log('  Account:', account)
+    console.log('  Provider:', provider ? 'Disponible' : 'Indisponible')
+    console.log('  Signer:', signer ? 'Disponible' : 'Indisponible')
+    console.log('  Signer type:', signer)
+    console.log('  Helper initialisé:', lotteryHelper.isInitialized())
+    console.log('  Helper a signer:', lotteryHelper.hasSigner())
+    
+    // TOUJOURS réinitialiser le signer avant d'acheter (force la connexion MetaMask)
+    console.log("🔄 Réinitialisation du signer pour MetaMask...")
+    if (provider && signer) {
+      lotteryHelper.initWithProvider(provider)
+      lotteryHelper.initWithSigner(signer)
+      console.log("✅ Signer réinitialisé")
+    } else {
+      alert("❌ Erreur: Provider ou Signer manquant !")
+      return
+    }
+
+    try {
+      console.log(`🎫 Tentative d'achat de ${ticketAmount} ticket(s)...`)
+      console.log(`💰 Prix unitaire: ${ticketPrice} ETH`)
+      console.log(`💰 Prix total: ${(parseFloat(ticketPrice) * ticketAmount).toFixed(4)} ETH`)
+      
+      // Confirmer avec l'utilisateur
+      const totalPrice = (parseFloat(ticketPrice) * ticketAmount).toFixed(4)
+      const confirmed = window.confirm(
+        `Acheter ${ticketAmount} ticket(s) pour ${totalPrice} ETH ?\n\n` +
+        `MetaMask va s'ouvrir pour confirmer la transaction.`
+      )
+      
+      if (!confirmed) {
+        console.log("❌ Achat annulé par l'utilisateur")
+        return
+      }
+      
+      console.log("✅ Confirmation reçue, envoi de la transaction...")
+      
+      // Utiliser le helper pour acheter des tickets
+      const result = await lotteryHelper.buyTickets(ticketAmount)
+      
+      console.log("📊 Résultat de la transaction:", result)
+      
+      if (result.success) {
+        console.log("🎉 Achat réussi!")
+        alert(`✅ ${ticketAmount} ticket(s) acheté(s) avec succès !`)
+        
+        // Recharger les données
+        await loadLotteryData()
+        
         // Réinitialiser le nombre de billets
         setTicketAmount(1)
-        resolve()
-      }, 2000) // Simulation de délai de transaction
-    })
+      } else {
+        throw new Error(result.error || "Échec de l'achat")
+      }
+      
+    } catch (error) {
+      console.error("❌ Erreur lors de l'achat:", error)
+      
+      let errorMessage = "Erreur lors de l'achat des tickets"
+      
+      if (error.message.includes("user rejected")) {
+        errorMessage = "Transaction annulée"
+      } else if (error.message.includes("insufficient funds")) {
+        errorMessage = "Solde insuffisant"
+      } else if (error.message.includes("Lottery is closed")) {
+        errorMessage = "La loterie est fermée"
+      }
+      
+      alert(`❌ ${errorMessage}`)
+    }
   }
+
+
 
   if (!isOpen) return null
 
@@ -158,10 +288,11 @@ function Lottery({ isOpen, onClose }) {
 
                     <button
                       onClick={handleBuyTickets}
-                      className="w-full px-6 py-4 bg-linear-to-r from-chance-500 to-blockchain-500 hover:from-chance-600 hover:to-blockchain-600 text-white font-bold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 text-lg"
+                      disabled={!account || lotteryState !== 0 || isLoadingData}
+                      className="w-full px-6 py-4 bg-linear-to-r from-chance-500 to-blockchain-500 hover:from-chance-600 hover:to-blockchain-600 text-white font-bold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Ticket className="w-6 h-6" />
-                      Acheter {ticketAmount} Billet{ticketAmount > 1 ? 's' : ''}
+                      {!account ? "Connectez votre wallet" : lotteryState !== 0 ? "Loterie fermée" : `Acheter ${ticketAmount} Billet${ticketAmount > 1 ? 's' : ''}`}
                     </button>
                   </div>
                 </div>
@@ -217,11 +348,28 @@ function Lottery({ isOpen, onClose }) {
                   Mes Billets
                 </h2>
                 
-                <div className="text-center py-8">
-                  <Ticket className="w-16 h-16 text-anthracite-300 mx-auto mb-4" />
-                  <p className="text-anthracite-600 mb-2">Aucun billet</p>
-                  <p className="text-sm text-anthracite-400">Achetez des billets pour participer</p>
-                </div>
+                {userTickets > 0 ? (
+                  <div className="space-y-3">
+                    <div className="bg-linear-to-r from-chance-50 to-blockchain-50 rounded-lg p-4 border-2 border-chance-300">
+                      <div className="text-center">
+                        <Ticket className="w-12 h-12 text-chance-600 mx-auto mb-2" />
+                        <p className="text-3xl font-bold text-anthracite-900">{userTickets}</p>
+                        <p className="text-sm text-anthracite-600">Billet{userTickets > 1 ? 's' : ''} actif{userTickets > 1 ? 's' : ''}</p>
+                      </div>
+                    </div>
+                    <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                      <p className="text-xs text-blue-800">
+                        💡 Vos chances de gagner: <span className="font-bold">{participants > 0 ? ((userTickets / participants) * 100).toFixed(2) : 0}%</span>
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Ticket className="w-16 h-16 text-anthracite-300 mx-auto mb-4" />
+                    <p className="text-anthracite-600 mb-2">Aucun billet</p>
+                    <p className="text-sm text-anthracite-400">Achetez des billets pour participer</p>
+                  </div>
+                )}
               </div>
 
               {/* Previous Winners */}
@@ -231,34 +379,27 @@ function Lottery({ isOpen, onClose }) {
                   Derniers Gagnants
                 </h2>
                 
-                <div className="space-y-3">
-                  <div className="bg-linear-to-r from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-anthracite-600">Loterie #12</span>
-                      <Trophy className="w-4 h-4 text-green-600" />
-                    </div>
-                    <p className="font-mono text-sm font-semibold text-anthracite-900 mb-1">0x742d...3a9f</p>
-                    <p className="text-sm font-bold text-green-600">3.2 ETH</p>
+                {lotteryHistory.length > 0 ? (
+                  <div className="space-y-3">
+                    {lotteryHistory.map((lottery) => (
+                      <div key={lottery.id} className="bg-linear-to-r from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs text-anthracite-600">Loterie #{lottery.id}</span>
+                          <Trophy className="w-4 h-4 text-green-600" />
+                        </div>
+                        <p className="font-mono text-sm font-semibold text-anthracite-900 mb-1">
+                          {lottery.winner.slice(0, 6)}...{lottery.winner.slice(-4)}
+                        </p>
+                        <p className="text-sm font-bold text-green-600">{parseFloat(lottery.totalBets).toFixed(4)} ETH</p>
+                      </div>
+                    ))}
                   </div>
-
-                  <div className="bg-linear-to-r from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-anthracite-600">Loterie #11</span>
-                      <Trophy className="w-4 h-4 text-green-600" />
-                    </div>
-                    <p className="font-mono text-sm font-semibold text-anthracite-900 mb-1">0x8f1b...7c2e</p>
-                    <p className="text-sm font-bold text-green-600">4.8 ETH</p>
+                ) : (
+                  <div className="text-center py-8">
+                    <Trophy className="w-16 h-16 text-anthracite-300 mx-auto mb-4" />
+                    <p className="text-sm text-anthracite-400">Aucun gagnant pour le moment</p>
                   </div>
-
-                  <div className="bg-linear-to-r from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-anthracite-600">Loterie #10</span>
-                      <Trophy className="w-4 h-4 text-green-600" />
-                    </div>
-                    <p className="font-mono text-sm font-semibold text-anthracite-900 mb-1">0x3d5a...1f8b</p>
-                    <p className="text-sm font-bold text-green-600">2.9 ETH</p>
-                  </div>
-                </div>
+                )}
               </div>
 
               {/* Lottery Info */}
@@ -275,7 +416,15 @@ function Lottery({ isOpen, onClose }) {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-anthracite-600">Vos chances</span>
-                    <span className="font-semibold text-anthracite-900">0%</span>
+                    <span className="font-semibold text-anthracite-900">
+                      {participants > 0 && userTickets > 0 ? `${((userTickets / participants) * 100).toFixed(2)}%` : "0%"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-anthracite-600">État</span>
+                    <span className="font-semibold text-anthracite-900">
+                      {lotteryState === 0 ? "Ouverte" : "Fermée"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-anthracite-600">Fin du tirage</span>
@@ -290,18 +439,51 @@ function Lottery({ isOpen, onClose }) {
                   <span className="font-semibold">🔗 Blockchain :</span> Cette lotterie est 100% décentralisée et sécurisée par Ethereum. Le gagnant est sélectionné de manière aléatoire et vérifiable.
                 </p>
               </div>
+
+              {/* Debug Panel - Dev Mode */}
+              {account && (
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-300">
+                  <details className="cursor-pointer">
+                    <summary className="text-sm font-semibold text-gray-700 hover:text-gray-900">
+                      🔧 Panneau de Debug
+                    </summary>
+                    <div className="mt-3 space-y-2 text-xs">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="bg-white p-2 rounded">
+                          <span className="text-gray-600">Account:</span>
+                          <p className="font-mono text-gray-900 truncate">{account}</p>
+                        </div>
+                        <div className="bg-white p-2 rounded">
+                          <span className="text-gray-600">Provider:</span>
+                          <p className="font-semibold">{provider ? '✅ Disponible' : '❌ Indisponible'}</p>
+                        </div>
+                        <div className="bg-white p-2 rounded">
+                          <span className="text-gray-600">Signer:</span>
+                          <p className="font-semibold">{signer ? '✅ Disponible' : '❌ Indisponible'}</p>
+                        </div>
+                        <div className="bg-white p-2 rounded">
+                          <span className="text-gray-600">Helper initialisé:</span>
+                          <p className="font-semibold">{lotteryHelper.isInitialized() ? '✅ Oui' : '❌ Non'}</p>
+                        </div>
+                        <div className="bg-white p-2 rounded">
+                          <span className="text-gray-600">Helper a signer:</span>
+                          <p className="font-semibold">{lotteryHelper.hasSigner() ? '✅ Oui' : '❌ Non'}</p>
+                        </div>
+                        <div className="bg-white p-2 rounded">
+                          <span className="text-gray-600">Contrat:</span>
+                          <p className="font-mono text-gray-900 truncate text-xs">{lotteryHelper.getContractAddress()}</p>
+                        </div>
+                      </div>
+                      <p className="text-gray-600 italic mt-2">
+                        💡 Tous les détails sont affichés dans la console (F12)
+                      </p>
+                    </div>
+                  </details>
+                </div>
+              )}
             </div>
           </div>
         </div>
-
-        {/* Modal de confirmation d'achat */}
-        <TicketPurchaseModal
-          isOpen={showConfirmation}
-          onClose={() => setShowConfirmation(false)}
-          ticketCount={ticketAmount}
-          totalPrice={(ticketPrice * ticketAmount).toFixed(3)}
-          onConfirm={handleConfirmPurchase}
-        />
       </div>
     </div>
   )

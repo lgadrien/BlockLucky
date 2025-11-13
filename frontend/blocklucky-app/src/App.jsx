@@ -7,6 +7,7 @@ import LotteryPage from './pages/LotteryPage'
 import NotFoundPage from './pages/NotFoundPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import ScrollToTopButton from './components/ui/ScrollToTopButton'
+import NetworkWarning from './components/NetworkWarning'
 import { useScrollTop, useScrollAnimation } from './hooks/useScroll'
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
     <Router>
       <div className="min-h-screen bg-white">
         <Header />
+        <NetworkWarning />
         <main>
           <Routes>
             <Route path="/" element={<HomePage />} />

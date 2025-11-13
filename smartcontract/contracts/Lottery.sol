@@ -3,7 +3,21 @@ pragma solidity ^0.8.0;
 
 contract Lottery {
 
+// Structure pour stocker l'historique des loteries
+    struct LotteryHistory {
+        uint lotteryId;
+        address winner;
+        uint totalBets;
+        uint participantsCount;
+        uint startTime;
+        uint endTime;
+        uint ticketsSold;
+    }
 
+    // Tableau pour stocker l'historique
+    LotteryHistory[] public lotteryHistory;
+    // ID de la loterie actuelle
+    uint public currentLotteryId;
 
 // Variables d'état
     enum LotteryState { OPEN, CLOSED }
@@ -24,6 +38,10 @@ contract Lottery {
     uint public ticketPrice;
     // Adresse du gagnant
     address public winner;
+    // Timestamp de début de la loterie
+    uint public startTime;
+    // Nombre total de tickets vendus
+    uint public ticketsSold;
 
 
 
@@ -37,6 +55,8 @@ contract Lottery {
         ticketPrice = 0.0016 ether;
         winner = address(0);
         lotteryState = LotteryState.CLOSED;
+        currentLotteryId = 0;
+        ticketsSold = 0;
     
     }
 
@@ -59,10 +79,15 @@ event LotteryStarted(uint duration);
         participantsCount = 0;
         totalBets = 0;
         winner = address(0);
+        ticketsSold = 0;
+        // Incrémenter l'ID de la loterie
+        currentLotteryId++;
         // Démarrer la loterie
         lotteryState = LotteryState.OPEN;
         //  Initialiser le temps restant
         timeLeft = block.timestamp + duration;
+        // Enregistrer l'heure de début
+        startTime = block.timestamp;
         // Émettre un événement pour le démarrage de la loterie
         emit LotteryStarted(duration);
     }
@@ -85,7 +110,9 @@ event TicketPurchased(address indexed participant, uint amount);
         // Ajouter le participant à la liste et incrémenter le nombre de tickets achetés
         participants.push(msg.sender);
         // Incrémenter le nombre de tickets achetés par le participant
-        ticketBought[msg.sender] += 1;   
+        ticketBought[msg.sender] += 1;
+        // Incrémenter le nombre total de tickets vendus
+        ticketsSold++;
         // Émettre un événement pour l'achat du ticket
         emit TicketPurchased(msg.sender, msg.value);
     }
@@ -137,6 +164,17 @@ event TicketPurchased(address indexed participant, uint amount);
         } else {
             winner = address(0); // Aucun participant, pas de gagnant
         }
+        
+        // Enregistrer dans l'historique
+        lotteryHistory.push(LotteryHistory({
+            lotteryId: currentLotteryId,
+            winner: winner,
+            totalBets: totalBets,
+            participantsCount: participantsCount,
+            startTime: startTime,
+            endTime: block.timestamp,
+            ticketsSold: ticketsSold
+        }));
     }
 
 
@@ -157,6 +195,22 @@ event TicketPurchased(address indexed participant, uint amount);
     // Fonction pour obtenir la liste des participants
     function getParticipants() public view returns (address[] memory) {
         return participants;
+    }
+
+    // Fonction pour obtenir l'historique complet des loteries
+    function getLotteryHistory() public view returns (LotteryHistory[] memory) {
+        return lotteryHistory;
+    }
+
+    // Fonction pour obtenir une loterie spécifique de l'historique
+    function getLotteryById(uint _lotteryId) public view returns (LotteryHistory memory) {
+        require(_lotteryId > 0 && _lotteryId <= lotteryHistory.length, "ID de loterie invalide");
+        return lotteryHistory[_lotteryId - 1];
+    }
+
+    // Fonction pour obtenir le nombre total de loteries passées
+    function getTotalLotteries() public view returns (uint) {
+        return lotteryHistory.length;
     }
 
 

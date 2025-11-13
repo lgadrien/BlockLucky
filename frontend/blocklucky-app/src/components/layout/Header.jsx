@@ -1,9 +1,14 @@
 import { useState, useEffect } from 'react'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, Home, User, Ticket } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import MetaMaskLogin from '../MetaMaskLogin'
+import NotificationBell from '../NotificationBell'
+import { useWeb3 } from '../../context/Web3Context'
 
 function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const { isConnected } = useWeb3()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,6 +24,11 @@ function Header() {
     { name: 'À propos', href: '#about' },
     { name: 'Contact', href: '#footer' },
   ]
+
+  // Filtrer les liens selon l'état de connexion
+  const displayedLinks = isConnected 
+    ? navLinks.filter(link => link.name === 'Accueil') 
+    : navLinks
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
@@ -41,20 +51,61 @@ function Header() {
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 relative group"
-                style={{ fontFamily: 'Inter, sans-serif' }}
-              >
-                {link.name}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blockchain-500 group-hover:w-full transition-all duration-300"></span>
-              </a>
-            ))}
-            <button className="px-6 py-2.5 bg-chance-500 hover:bg-chance-600 text-white font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 transform">
-              Commencer
-            </button>
+            {isConnected ? (
+              <>
+                {/* Bouton Home */}
+                <Link
+                  to="/"
+                  className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 relative group flex items-center gap-2"
+                  style={{ fontFamily: 'Inter, sans-serif' }}
+                >
+                  <Home className="w-4 h-4" />
+                  <span>Accueil</span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blockchain-500 group-hover:w-full transition-all duration-300"></span>
+                </Link>
+
+                {/* Bouton Profil */}
+                <Link
+                  to="/profil"
+                  className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 relative group flex items-center gap-2"
+                  style={{ fontFamily: 'Inter, sans-serif' }}
+                >
+                  <User className="w-4 h-4" />
+                  <span>Profil</span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blockchain-500 group-hover:w-full transition-all duration-300"></span>
+                </Link>
+
+                {/* Bouton Lotterie */}
+                <Link
+                  to="/lotterie"
+                  className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 relative group flex items-center gap-2"
+                  style={{ fontFamily: 'Inter, sans-serif' }}
+                >
+                  <Ticket className="w-4 h-4" />
+                  <span>Lotterie</span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blockchain-500 group-hover:w-full transition-all duration-300"></span>
+                </Link>
+              </>
+            ) : (
+              <>
+                {displayedLinks.map((link) => (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 relative group"
+                    style={{ fontFamily: 'Inter, sans-serif' }}
+                  >
+                    {link.name}
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blockchain-500 group-hover:w-full transition-all duration-300"></span>
+                  </a>
+                ))}
+              </>
+            )}
+            
+            {/* Notification Bell - Only when connected */}
+            {isConnected && <NotificationBell />}
+            
+            <MetaMaskLogin />
           </nav>
 
           {/* Mobile menu button */}
@@ -71,20 +122,59 @@ function Header() {
         {isMobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-100">
             <nav className="flex flex-col gap-4">
-              {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 py-2"
-                  style={{ fontFamily: 'Inter, sans-serif' }}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {link.name}
-                </a>
-              ))}
-              <button className="mt-2 px-6 py-2.5 bg-chance-500 hover:bg-chance-600 text-white font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-lg w-full">
-                Commencer
-              </button>
+              {isConnected ? (
+                <>
+                  {/* Bouton Home Mobile */}
+                  <Link
+                    to="/"
+                    className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 py-2 flex items-center gap-2"
+                    style={{ fontFamily: 'Inter, sans-serif' }}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Home className="w-4 h-4" />
+                    <span>Accueil</span>
+                  </Link>
+
+                  {/* Bouton Profil Mobile */}
+                  <Link
+                    to="/profil"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 py-2 flex items-center gap-2 text-left"
+                    style={{ fontFamily: 'Inter, sans-serif' }}
+                  >
+                    <User className="w-4 h-4" />
+                    <span>Profil</span>
+                  </Link>
+
+                  {/* Bouton Lotterie Mobile */}
+                  <Link
+                    to="/lotterie"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 py-2 flex items-center gap-2 text-left"
+                    style={{ fontFamily: 'Inter, sans-serif' }}
+                  >
+                    <Ticket className="w-4 h-4" />
+                    <span>Lotterie</span>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  {displayedLinks.map((link) => (
+                    <a
+                      key={link.name}
+                      href={link.href}
+                      className="text-anthracite-700 hover:text-blockchain-500 font-medium transition-colors duration-200 py-2"
+                      style={{ fontFamily: 'Inter, sans-serif' }}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {link.name}
+                    </a>
+                  ))}
+                </>
+              )}
+              <div className="mt-2">
+                <MetaMaskLogin />
+              </div>
             </nav>
           </div>
         )}

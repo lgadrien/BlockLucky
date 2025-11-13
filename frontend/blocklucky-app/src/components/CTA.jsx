@@ -1,6 +1,21 @@
 import { Sparkles } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { useWeb3 } from '../context/Web3Context'
 
 function CTA() {
+  const { connectWallet, isLoading, isConnected } = useWeb3()
+  const navigate = useNavigate()
+
+  const handleCTA = async () => {
+    if (isConnected) {
+      // Si déjà connecté, aller à la page lotterie
+      navigate('/lotterie')
+    } else {
+      // Sinon, connecter le wallet
+      await connectWallet()
+    }
+  }
+
   return (
     <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-blockchain-600 to-chance-600 relative overflow-hidden">
       {/* Background decorations */}
@@ -24,11 +39,13 @@ function CTA() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4" data-scroll>
-          <button className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-white hover:bg-gray-50 text-blockchain-600 text-sm sm:text-base font-bold rounded-xl transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-105 transform" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-            Commencer maintenant
-          </button>
-          <button className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-transparent hover:bg-white/10 text-white text-sm sm:text-base font-semibold rounded-xl transition-all duration-200 border-2 border-white/50 hover:border-white" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-            Voir la démo
+          <button 
+            onClick={handleCTA}
+            disabled={isLoading}
+            className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-white hover:bg-gray-50 text-blockchain-600 text-sm sm:text-base font-bold rounded-xl transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-105 transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100" 
+            style={{ fontFamily: 'Montserrat, sans-serif' }}
+          >
+            {isLoading ? 'Connexion...' : (isConnected ? 'Participer maintenant' : 'Commencer maintenant')}
           </button>
         </div>
 
